@@ -502,7 +502,7 @@ class CustomMailAdapter
     protected function canCreateFunctionCustomMail()
     {
         try {
-            return $this->isActive() && $this->checkFields() && $this->includeVendorFiles();
+            return !function_exists('custom_mail') && $this->isActive() && $this->checkFields() && $this->includeVendorFiles();
         } catch (Exception $e) {
             $this->addError($e->getMessage());
         }
