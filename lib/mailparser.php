@@ -15,11 +15,13 @@ class MailParser
     protected $contentType;
     protected $boundary;
     protected $senderAddress;
-    protected $retryToAddresses = [];
+    protected $replyToAddresses = [];
     protected $BCCAddresses = [];
+    protected $CCAddresses = [];
     protected $isHtml = true;
     protected $htmlMessage;
     protected $textMessage;
+
     /**
      * @param $header
      */
@@ -29,30 +31,6 @@ class MailParser
         if (preg_match('(multipart/mixed; boundary="([^"]+)")ui', $this->getContentType(), $m)) {
             $this->setBoundary($m[1]);
         }
-    }
-    /**
-     * @param $name
-     * @return mixed
-     */
-    protected function getAdditionalHeader($name)
-    {
-        if (array_key_exists($name, $this->additionalHeaders)) {
-            return $this->additionalHeaders[$name];
-        }
-        return null;
-    }
-    /**
-     * @param $name
-     * @return mixed
-     */
-    public function shiftAdditionalHeader($name)
-    {
-        if (array_key_exists($name, $this->additionalHeaders)) {
-            $value = $this->additionalHeaders[$name];
-            unset($this->additionalHeaders[$name]);
-            return $value;
-        }
-        return null;
     }
 
     /**
@@ -93,7 +71,7 @@ class MailParser
             } elseif ($key === 'Reply-To') {
                 foreach ($this->parseAddresses($header) as $email) {
                     if ($address = $this->parseAddress($email)) {
-                        $this->addRetryToAddress($address);
+                        $this->addReplyToAddress($address);
                     }
                 }
                 continue;
@@ -101,6 +79,13 @@ class MailParser
                 foreach ($this->parseAddresses($header) as $email) {
                     if ($address = $this->parseAddress($email)) {
                         $this->addBCCAddress($address);
+                    }
+                }
+                continue;
+            } elseif ($key === 'CC') {
+                foreach ($this->parseAddresses($header) as $email) {
+                    if ($address = $this->parseAddress($email)) {
+                        $this->addCCAddress($address);
                     }
                 }
                 continue;
@@ -339,16 +324,24 @@ class MailParser
     /**
      * @param $address
      */
-    protected function addRetryToAddress($address)
+    protected function addReplyToAddress($address)
     {
-        $this->retryToAddresses[] = $address;
+        $this->replyToAddresses[] = $address;
     }
     /**
      * @return array
      */
-    public function getRetryToAddresses()
+    public function getReplyToAddresses()
     {
-        return $this->retryToAddresses;
+        return $this->replyToAddresses;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCCAddresses()
+    {
+        return $this->CCAddresses;
     }
 
     /**
@@ -362,11 +355,18 @@ class MailParser
     /**
      * @param $address
      */
+    protected function addCCAddress($address)
+    {
+        $this->CCAddresses[] = $address;
+    }
+
+    /**
+     * @param $address
+     */
     protected function addBCCAddress($address)
     {
         $this->BCCAddresses[] = $address;
     }
-
 
     /**
      * @return bool

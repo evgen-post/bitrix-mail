@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization\Loc;
 
 /**
@@ -40,6 +41,7 @@ class bx_mail extends CModule
      */
     function DoInstall()
     {
+        EventManager::getInstance()->registerEventHandler('main', 'OnPageStart', $this->MODULE_ID);
         RegisterModule($this->MODULE_ID);
     }
 
@@ -48,6 +50,7 @@ class bx_mail extends CModule
      */
     function DoUninstall()
     {
+        EventManager::getInstance()->unRegisterEventHandler('main', 'OnPageStart', $this->MODULE_ID);
         UnRegisterModule($this->MODULE_ID);
     }
 

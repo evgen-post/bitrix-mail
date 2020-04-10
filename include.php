@@ -1,6 +1,6 @@
 <?php
 use Bx\Mail\CustomMailAdapter;
 
-CustomMailAdapter::getInstance()->onlyEmailTo();
+CustomMailAdapter::getInstance()->getRestrict()->onlyEmailTo();
 
 CustomMailAdapter::getInstance()->createCustomMailFunction();

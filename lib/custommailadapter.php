@@ -15,14 +15,9 @@ class CustomMailAdapter
 
     protected $sender;
     protected $errors = [];
-    protected $additionalHeaders = [];
     protected $boundary;
-    protected $textMessage = '';
-    protected $htmlMessage = '';
     protected $isHtml = true;
     protected $contentType;
-    protected $allowedEmails;
-    protected $isStrict;
     /**
      * @var PHPMailer
      */
@@ -57,7 +52,7 @@ class CustomMailAdapter
         $this->parser = new MailParser();
         $this->restrict = new MailRestrict();
         $this->logger = new MailLogger();
-        if (class_exists('\PHPMailer\PHPMailer\PHPMailer')) {
+        if ($this->validateVendorClasses()) {
             $this->phpMailer = new PHPMailer();
         }
     }
@@ -78,7 +73,7 @@ class CustomMailAdapter
      */
     public function createCustomMailFunction()
     {
-        if ($this->canCreateFunctionCustomMail()) {
+        if ($this->checkFunctionNotExists() && $this->canSendMail()) {
             include_once __DIR__.'/custom_mail.php';
         }
     }
@@ -94,7 +89,7 @@ class CustomMailAdapter
      */
     public function send($to, $subject, $message, $additional_headers, $additional_parameters, $context)
     {
-        if ($this->canCreateFunctionCustomMail()) {
+        if ($this->canSendMail()) {
             try {
                 $this->getParser()->parseAdditionalHeaders($additional_headers);
                 $address = $this->getParser()->getSenderAddress();
@@ -103,20 +98,25 @@ class CustomMailAdapter
                 } else {
                     throw new Exception('Не указан отправитель.');
                 }
-                foreach ($this->getParser()->getRetryToAddresses() as $address) {
-                    $this->getPhpMailer()->addReplyTo($address['email'], $address['name']);
-                }
-                foreach ($this->getParser()->getBCCAddresses() as $address) {
-                    $this->getPhpMailer()->addBCC($address['email'], $address['name']);
-                }
-                foreach ($this->getParser()->getAdditionalHeaders() as $headerKey => $header) {
-                    $this->getPhpMailer()->addCustomHeader($headerKey, $header);
-                }
+
                 foreach ($this->getParser()->parseAddresses($to) as $email) {
                     if ($address = $this->getParser()->parseAddress($email)) {
                         $this->getPhpMailer()->addAddress($address['email'], $address['name']);
                     }
                 }
+                foreach ($this->getParser()->getReplyToAddresses() as $address) {
+                    $this->getPhpMailer()->addReplyTo($address['email'], $address['name']);
+                }
+                foreach ($this->getParser()->getBCCAddresses() as $address) {
+                    $this->getPhpMailer()->addBCC($address['email'], $address['name']);
+                }
+                foreach ($this->getParser()->getCCAddresses() as $address) {
+                    $this->getPhpMailer()->addCC($address['email'], $address['name']);
+                }
+                foreach ($this->getParser()->getAdditionalHeaders() as $headerKey => $header) {
+                    $this->getPhpMailer()->addCustomHeader($headerKey, $header);
+                }
+
                 $this->getParser()->parseMessage($message);
 //                $this->phpMailer->sign('/usr/lib/ssl/certs/cacert.pem', '/usr/lib/ssl/private/cakey.pem','');
                 $this->getPhpMailer()->SMTPDebug = SMTP::DEBUG_OFF;
@@ -135,14 +135,16 @@ class CustomMailAdapter
                 $this->getPhpMailer()->SMTPAuth = true;
                 $this->getPhpMailer()->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $this->getPhpMailer()->Subject = $subject;
+
+                $this->getPhpMailer()->isHTML($this->getParser()->isHtml());
+
                 $this->getPhpMailer()->Body = $this->getParser()->getHtmlMessage();
                 if ($this->getParser()->isHtml()) {
                     $this->getPhpMailer()->AltBody = $this->getParser()->getTextMessage();
                 }
-                $this->getPhpMailer()->isHTML($this->getParser()->isHtml());
+
                 if (!$this->getPhpMailer()->send()) {
-                    $this->getLogger()->eventLog('Не удалось доставить почту');
-                    return false;
+                    throw new Exception('Не удалось доставить почту');
                 }
                 return true;
             } catch (Exception $e) {
@@ -155,7 +157,7 @@ class CustomMailAdapter
     /**
      * @return bool
      */
-    protected function includeVendorFiles()
+    protected function validateVendorClasses()
     {
         if (class_exists('\PHPMailer\PHPMailer\PHPMailer')
             && class_exists('\PHPMailer\PHPMailer\SMTP')
@@ -187,10 +189,10 @@ class CustomMailAdapter
     /**
      * @return bool
      */
-    protected function canCreateFunctionCustomMail()
+    protected function canSendMail()
     {
         try {
-            return $this->checkFunctionNotExists() && $this->isActive() && $this->checkFields() && $this->includeVendorFiles();
+            return $this->getOptions()->isActive() && $this->validateFields() && $this->validateVendorClasses();
         } catch (Exception $e) {
             $this->addError($e->getMessage());
         }
@@ -259,19 +261,21 @@ class CustomMailAdapter
 
     /**
      * @return bool
+     * @throws ArgumentOutOfRangeException
+     * @throws \Bitrix\Main\ArgumentNullException
      */
-    protected function checkFields()
+    protected function validateFields()
     {
-        if (empty($this->getHost())) {
+        if (empty($this->getOptions()->getHost())) {
             $this->addError('Host not specified');
         }
-        if (empty($this->getPort())) {
+        if (empty($this->getOptions()->getPort())) {
             $this->addError('Port not specified');
         }
-        if (empty($this->getPassword())) {
+        if (empty($this->getOptions()->getPassword())) {
             $this->addError('Password not specified');
         }
-        if (empty($this->getUserName())) {
+        if (empty($this->getOptions()->getUserName())) {
             $this->addError('User name not specified');
         }
         return !$this->hasErrors();

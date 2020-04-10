@@ -1,11 +1,6 @@
 <?php
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
-use Bx\Mail\CustomMailAdapter;
-
-if (!Loader::includeModule('bx.mail')) {
-    return;
-}
+use Bx\Mail\MailOption;
 
 $arFields = [
     'SMTP' => [
@@ -18,12 +13,12 @@ $arFields = [
         [
             'label' => 'Хост',
             'code' => 'SMTP_HOST',
-            'default' => CustomMailAdapter::DEFAULT_HOST,
+            'default' => MailOption::DEFAULT_HOST,
         ],
         [
             'label' => 'Порт',
             'code' => 'SMTP_PORT',
-            'default' => CustomMailAdapter::DEFAULT_PORT,
+            'default' => MailOption::DEFAULT_PORT,
         ],
         [
             'label' => 'Логин',
@@ -58,9 +53,9 @@ function PzSmtploadOptions(&$arFields)
                 $field['default'] = '';
             }
             if ($field['code'] === 'MAIL_SENDERS') {
-                $field['value'] = join("\n", array_map('trim', preg_split("([\n,;]+)ui", Option::get(CustomMailAdapter::MODULE_ID, $field['code'], $field['default']))));
+                $field['value'] = join("\n", array_map('trim', preg_split("([\n,;]+)ui", Option::get(MailOption::MODULE_ID, $field['code'], $field['default']))));
             } else {
-                $field['value'] = Option::get(CustomMailAdapter::MODULE_ID, $field['code'], $field['default']);
+                $field['value'] = Option::get(MailOption::MODULE_ID, $field['code'], $field['default']);
             }
         }
     }
@@ -70,7 +65,7 @@ PzSmtploadOptions($arFields);
 
 if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->CanDoOperation('edit_other_settings') && $USER->CanDoOperation('edit_groups')) && check_bitrix_sessid()) {
     if (!empty($_POST['SMTP'])) {
-        CustomMailAdapter::saveOptions($_POST['SMTP']);
+        MailOption::saveOptions($_POST['SMTP']);
     }
     if($_REQUEST["back_url_settings"] <> "" && $_REQUEST["Apply"] == "") {
         LocalRedirect($_REQUEST["back_url_settings"]);
@@ -110,7 +105,6 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
                 <?php else:?>
                     <input class="input-text" type="text" name="SMTP[<?=$field['code']?>]" value="<?=$field['value']?>">
                 <?php endif;?>
-
             </td>
         </tr>
     <?php endforeach;?>

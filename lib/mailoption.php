@@ -45,7 +45,23 @@ class MailOption
     protected $password;
     protected $port;
     protected $sender;
+    protected $isStrict;
+    protected $allowedEmails;
 
+    /**
+     * @throws ArgumentOutOfRangeException
+     * @throws \Bitrix\Main\ArgumentNullException
+     */
+    public function getAllowedEmails()
+    {
+        if ($this->isStrict()) {
+            if (is_null($this->allowedEmails)) {
+                $this->allowedEmails = array_map('trim', preg_split("([\n,;]+)ui", Option::get(MailOption::MODULE_ID, MailOption::OPTION_ALLOW_SENDERS)));
+            }
+            return $this->allowedEmails;
+        }
+        return [];
+    }
     /**
      * @param $fields
      * @throws ArgumentOutOfRangeException
@@ -202,4 +218,35 @@ class MailOption
         return $this;
     }
 
+    /**
+     * @return bool
+     * @throws ArgumentNullException
+     * @throws ArgumentOutOfRangeException
+     */
+    public function isStrict()
+    {
+        if (is_null($this->isStrict)) {
+            $this->isStrict = (Option::get(MailOption::MODULE_ID, MailOption::OPTION_MAIL_SENDERS_STRICT, 'N') === 'Y');
+        }
+
+        return $this->isStrict;
+    }
+
+    /**
+     * @param bool $isStrict
+     * @return MailOption
+     */
+    public function setIsStrict($isStrict)
+    {
+        $this->isStrict = $isStrict;
+        return $this;
+    }
+
+    /**
+     * @return CustomMailAdapter
+     */
+    public function getAdapter()
+    {
+        return CustomMailAdapter::getInstance();
+    }
 }
