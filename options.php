@@ -76,38 +76,48 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->C
 
 PzSmtploadOptions($arFields);
 
-$aTabs = array(
-    array("DIV" => "edit1", "TAB" => "Настройки SMTP", "ICON" => "main_settings", "TITLE" => "Настройки SMTP"),
-);
-$tabControl = new CAdminTabControl("tabControl", $aTabs);
+$tabControl = new CAdminTabControl("tabControl", MailOption::getTabs());
 
 ?>
 <form name="main_options" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?echo LANG?>">
     <?=bitrix_sessid_post()?>
     <?php
     $tabControl->Begin();
-    $tabControl->BeginNextTab();
+    foreach (MailOption::getTabs() as $tab) {
+        $tabControl->BeginNextTab();
+        if (is_array($tab['rows']) && !empty($tab['rows'])) {
+            foreach ($tab['rows'] as $row) {
+                if ($row['type'] === 'header' && !empty($row['label'])) {
+                    ?>
+                    <tr class="heading">
+                        <td colspan="2"><b><?=$row['label']?></b></td>
+                    </tr>
+                <?php
+                } else {
+                    ?>
+                    <tr>
+                        <td><?=$row['label']?></td>
+                        <td>
+                            <?php if($row['type'] === 'checkbox'):?>
+                                <input type="hidden" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="N">
+                                <input class="input-text" type="checkbox" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="Y" <?=(($row['value'] === 'Y') ? ' checked="checked"' : '')?>>
+                            <?php elseif($row['code'] === 'SMTP_PASSWORD'):?>
+                                <input class="input-text" type="password" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="<?=$row['value']?>">
+                            <?php elseif($row['code'] === 'MAIL_SENDERS'):?>
+                                <textarea rows="20" style="width: 100%" class="input-text" name="<?=$tab['DIR']?>[<?=$row['name']?>]"><?=htmlspecialchars($row['value'])?></textarea>
+                            <?php else:?>
+                                <input class="input-text" type="text" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="<?=$row['value']?>">
+                            <?php endif;?>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            }
+        }
+        ?>
+        <?
+    }
     ?>
-    <tr class="heading">
-        <td colspan="2"><b>Настройки SMTP</b></td>
-    </tr>
-    <?php foreach ($arFields['SMTP'] as $field):?>
-        <tr>
-            <td><?=$field['label']?></td>
-            <td>
-                <?php if($field['type'] === 'checkbox'):?>
-                    <input type="hidden" name="SMTP[<?=$field['code']?>]" value="N">
-                    <input class="input-text" type="checkbox" name="SMTP[<?=$field['code']?>]" value="Y" <?=(($field['value'] === 'Y') ? ' checked="checked"' : '')?>>
-                <?php elseif($field['code'] === 'SMTP_PASSWORD'):?>
-                    <input class="input-text" type="password" name="SMTP[<?=$field['code']?>]" value="<?=$field['value']?>">
-                <?php elseif($field['code'] === 'MAIL_SENDERS'):?>
-                    <textarea rows="20" style="width: 100%" class="input-text" name="SMTP[<?=$field['code']?>]"><?=htmlspecialchars($field['value'])?></textarea>
-                <?php else:?>
-                    <input class="input-text" type="text" name="SMTP[<?=$field['code']?>]" value="<?=$field['value']?>">
-                <?php endif;?>
-            </td>
-        </tr>
-    <?php endforeach;?>
     <?$tabControl->Buttons();?>
     <script type="text/javascript">
         function RestoreDefaults()

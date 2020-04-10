@@ -28,6 +28,94 @@ class MailOption
     const DEFAULT_USERNAME = '';
     const DEFAULT_PASSWORD = '';
 
+    protected static $tabs = [
+        [
+            "DIV" => "SMTP",
+            "TAB" => "Ограничения",
+            "ICON" => "main_settings",
+            "TITLE" => "Ограничения почтовых отправлений",
+            'rows' => [
+                [
+                    'type' => 'header',
+                    'label' => 'Настройки SMTP',
+                ],
+                [
+                    'label' => 'Настройки SMTP',
+                    'type' => 'checkbox',
+                    'prefix' => 'Настройки SMTP',
+                    'name' => 'Настройки SMTP',
+                    'value' => 'Настройки SMTP',
+                    'default' => 'Настройки SMTP',
+                    'options' => [
+                        [
+                            'value' => '1',
+                            'label' => 'one',
+                        ]
+                    ],
+                ],
+            ],
+        ],
+        [
+            "DIV" => "edit2",
+            "TAB" => "Настройки SMTP",
+            "ICON" => "main_settings",
+            "TITLE" => "Настройки SMTP",
+            'rows' => [
+                [
+                    'type' => 'header',
+                    'label' => 'Настройки SMTP',
+                ],
+                [
+                    'label' => 'Активность отправки SMTP',
+                    'name' => 'SMTP_ACTIVE',
+                    'default' => 'N',
+                    'type' => 'checkbox',
+                ],
+                [
+                    'label' => 'Хост',
+                    'name' => 'SMTP_HOST',
+                    'default' => MailOption::DEFAULT_HOST,
+                ],
+            ],
+        ],
+        [
+            "DIV" => "edit4",
+            "TAB" => "Проверка",
+            "ICON" => "main_settings",
+            "TITLE" => "Проверка",
+            'rows' => [
+                [
+                    'type' => 'header',
+                    'label' => 'Настройки SMTP',
+                ],
+            ],
+        ],
+        [
+            "DIV" => "edit3",
+            "TAB" => "Лорирование",
+            "ICON" => "main_settings",
+            "TITLE" => "Логирование",
+            'rows' => [
+                [
+                    'type' => 'header',
+                    'label' => 'Настройки SMTP',
+                ],
+            ],
+        ],
+        [
+            "DIV" => "edit4",
+            "TAB" => "Отладка",
+            "ICON" => "main_settings",
+            "TITLE" => "Отладка",
+            'rows' => [
+                [
+                    'type' => 'header',
+                    'label' => 'Настройки SMTP',
+                ],
+            ],
+        ],
+    ];
+
     const OPTION_FIELDS = [
         self::OPTION_ACTIVE,
         self::OPTION_HOST,
@@ -249,4 +337,13 @@ class MailOption
     {
         return CustomMailAdapter::getInstance();
     }
+
+    /**
+     * @return array
+     */
+    public static function getTabs()
+    {
+        return self::$tabs;
+    }
+
 }

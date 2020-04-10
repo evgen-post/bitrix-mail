@@ -4,6 +4,7 @@ namespace Bx\Mail;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 
 /**
  * Class MailParser
@@ -151,8 +152,21 @@ class MailParser
                                 $attachment['encoding'] = $rowHeader;
                             }
                         }
-                        $this->getAdapter()->getPhpMailer()->addStringAttachment(base64_decode($row['content']), $attachment['name'],
-                            $attachment['encoding'], $attachment['type']);
+                        if ($attachment['encoding'] === PHPMailer::ENCODING_BASE64) {
+                            $this->getAdapter()->getPhpMailer()->addStringAttachment(
+                                base64_decode($row['content']),
+                                $attachment['name'],
+                                $attachment['encoding'],
+                                $attachment['type']
+                            );
+                        } else {
+                            $this->getAdapter()->getPhpMailer()->addStringAttachment(
+                                $row['content'],
+                                $attachment['name'],
+                                $attachment['encoding'],
+                                $attachment['type']
+                            );
+                        }
                     } elseif (!empty($row['headers']['Content-Type'])
                         && preg_match('(multipart/alternative; boundary="([^"]+)")ui', $row['headers']['Content-Type'], $m)
                     ) {
@@ -169,27 +183,29 @@ class MailParser
                             }
                         }
                     } else {
-                        if (stripos($row['headers']['Content-Type'], 'text/plain') !== false ) {
-                            $this->setIsHtml(false);
-                            $this->setHtmlMessage($row['content']);
-                        } else {
-                            $this->setHtmlMessage($row['content']);
-                            $this->setTextMessage(strip_tags($this->getHtmlMessage()));
-                        }
+                        $this->setHtmlMessageByContentType($row['content'], $row['headers']['Content-Type']);
                     }
                 }
             }
         } else {
-            if (stripos($this->getContentType(), 'text/plain') !== false) {
-                $this->setIsHtml(false);
-                $this->setHtmlMessage($message);
-            } elseif (stripos($this->contentType, 'text/html') !== false) {
-                $this->setHtmlMessage($message);
-                $this->setTextMessage(strip_tags($this->getHtmlMessage()));
-            }
+            $this->setHtmlMessageByContentType($message, $this->getContentType());
         }
     }
 
+    /**
+     * @param $message
+     * @param $contentType
+     */
+    protected function setHtmlMessageByContentType($message, $contentType)
+    {
+        if (stripos($contentType, 'text/plain') !== false) {
+            $this->setIsHtml(false);
+            $this->setHtmlMessage($message);
+        } elseif (stripos($contentType, 'text/html') !== false) {
+            $this->setHtmlMessage($message);
+            $this->setTextMessage(strip_tags($this->getHtmlMessage()));
+        }
+    }
     /**
      * @param $addresses
      * @return array

@@ -53,7 +53,7 @@ class CustomMailAdapter
         $this->restrict = new MailRestrict();
         $this->logger = new MailLogger();
         if ($this->validateVendorClasses()) {
-            $this->phpMailer = new PHPMailer();
+            $this->phpMailer = new PHPMailer(true);
         }
     }
 
@@ -98,7 +98,6 @@ class CustomMailAdapter
                 } else {
                     throw new Exception('Не указан отправитель.');
                 }
-
                 foreach ($this->getParser()->parseAddresses($to) as $email) {
                     if ($address = $this->getParser()->parseAddress($email)) {
                         $this->getPhpMailer()->addAddress($address['email'], $address['name']);
@@ -118,12 +117,7 @@ class CustomMailAdapter
                 }
 
                 $this->getParser()->parseMessage($message);
-//                $this->phpMailer->sign('/usr/lib/ssl/certs/cacert.pem', '/usr/lib/ssl/private/cakey.pem','');
-                $this->getPhpMailer()->SMTPDebug = SMTP::DEBUG_OFF;
-//                $this->phpMailer->SMTPDebug = SMTP::DEBUG_LOWLEVEL;
-//                $this->phpMailer->Debugoutput = function (...$args){
-//                    self::log(...$args);
-//                };
+
                 $this->getPhpMailer()->isSMTP();
 
                 $this->getPhpMailer()->Host = $this->getOptions()->getHost();
@@ -143,15 +137,22 @@ class CustomMailAdapter
                     $this->getPhpMailer()->AltBody = $this->getParser()->getTextMessage();
                 }
 
+                $this->getPhpMailer()->SMTPDebug = SMTP::DEBUG_OFF;
+
+//                $this->getPhpMailer()->Debugoutput = function (...$args){
+//                    $this->getLogger()->log($args);
+//                };
+
                 if (!$this->getPhpMailer()->send()) {
                     throw new Exception('Не удалось доставить почту');
                 }
                 return true;
             } catch (Exception $e) {
+//                $this->getLogger()->log($e->getMessage());
                 $this->getLogger()->eventLog($e->getMessage());
             }
-            return false;
         }
+        return false;
     }
 
     /**
