@@ -30,51 +30,139 @@ class MailOption
 
     protected static $tabs = [
         [
-            "DIV" => "SMTP",
-            "TAB" => "Ограничения",
+            "DIV" => "MAIL",
+            "TAB" => "Настройки и ограничения",
             "ICON" => "main_settings",
-            "TITLE" => "Ограничения почтовых отправлений",
+            "TITLE" => "Настройки и ограничения почтовых отправлений",
             'rows' => [
                 [
                     'type' => 'header',
-                    'label' => 'Настройки SMTP',
+                    'label' => 'Настройка отправки почты',
                 ],
                 [
-                    'label' => 'Настройки SMTP',
+                    'label' => 'Использовать отправителя по умолчанию для всех писем',
                     'type' => 'checkbox',
-                    'prefix' => 'Настройки SMTP',
-                    'name' => 'Настройки SMTP',
-                    'value' => 'Настройки SMTP',
-                    'default' => 'Настройки SMTP',
-                    'options' => [
-                        [
-                            'value' => '1',
-                            'label' => 'one',
-                        ]
+                    'code' => 'SMTP_SENDER_ACTIVE',
+                    'default' => 'N',
+                    'values' => [
+                        'N','Y',
                     ],
+                ],
+                [
+                    'label' => 'Отправитель по умолчанию для всех писем',
+                    'code' => 'SMTP_SENDER',
+                    'attrs' => 'size="80"',
+                ],
+                [
+                    'type' => 'header',
+                    'label' => 'Блокировка отправки почты',
+                ],
+                [
+                    'label' => 'Полностью заблокировать отправку почты',
+                    'type' => 'checkbox',
+                    'code' => 'BLOCKING_ALL_MAILS',
+                    'default' => 'N',
+                    'values' => [
+                        'N','Y',
+                    ],
+                ],
+                [
+                    'type' => 'info',
+                    'label' => '<span class="required">Будьте осторожны!</span> Данная установка полностью блокирует отправку почты.',
+                ],
+                [
+                    'type' => 'header',
+                    'label' => 'Изменение получателя для всех писем',
+                ],
+                [
+                    'label' => 'Включить отправку всех писем на указанную почту',
+                    'type' => 'checkbox',
+                    'code' => 'MAIL_TO_ACTIVE',
+                    'default' => 'N',
+                    'values' => [
+                        'N','Y',
+                    ],
+                ],
+                [
+                    'label' => 'Отправлять все письма только на указанную почту',
+                    'type' => 'text',
+                    'code' => 'MAIL_TO_EXACT',
+                    'attrs' => 'size="80"',
+                ],
+                [
+                    'type' => 'info',
+                    'label' => '<span class="required">Будьте осторожны!</span> Если активировать данную настройку, то все письма будут отправляться только на указанную почту, вместо реального адресата. Реальный адресат письмо не получит.',
+                ],
+                [
+                    'type' => 'header',
+                    'label' => 'Органичения списка получателей',
+                ],
+                [
+                    'label' => 'Включить ограничения для списка получателей',
+                    'type' => 'checkbox',
+                    'code' => 'MAIL_SENDERS_ACTIVE',
+                    'default' => 'N',
+                    'values' => [
+                        'N','Y',
+                    ],
+                ],
+                [
+                    'label' => 'Разрешённые получатели',
+                    'code' => 'MAIL_SENDERS',
+                    'type' => 'textarea',
+                    'attrs' => 'cols="80" rows="20"',
+                ],
+                [
+                    'type' => 'info',
+                    'label' => '<span class="required">Будьте осторожны!</span> Если активировать данную настройку, то все письма будут отправляться только на адреса, указанные в списке разрешённых получателей. Все остальные отправления будут заблокированы.',
                 ],
             ],
         ],
         [
-            "DIV" => "edit2",
+            "DIV" => "SMTP",
             "TAB" => "Настройки SMTP",
             "ICON" => "main_settings",
             "TITLE" => "Настройки SMTP",
             'rows' => [
                 [
                     'type' => 'header',
-                    'label' => 'Настройки SMTP',
+                    'label' => 'Активность SMTP',
                 ],
                 [
                     'label' => 'Активность отправки SMTP',
-                    'name' => 'SMTP_ACTIVE',
+                    'code' => 'SMTP_ACTIVE',
                     'default' => 'N',
                     'type' => 'checkbox',
+                    'values' => [
+                        'N','Y',
+                    ],
+                ],
+                [
+                    'type' => 'header',
+                    'label' => 'Настройки SMTP',
                 ],
                 [
                     'label' => 'Хост',
-                    'name' => 'SMTP_HOST',
+                    'code' => 'SMTP_HOST',
                     'default' => MailOption::DEFAULT_HOST,
+                    'attrs' => 'size="80"',
+                ],
+                [
+                    'label' => 'Порт',
+                    'code' => 'SMTP_PORT',
+                    'default' => MailOption::DEFAULT_PORT,
+                    'attrs' => 'size="80"',
+                ],
+                [
+                    'label' => 'Логин',
+                    'code' => 'SMTP_USERNAME',
+                    'attrs' => 'size="80"',
+                ],
+                [
+                    'label' => 'Пароль',
+                    'code' => 'SMTP_PASSWORD',
+                    'type' => 'password',
+                    'attrs' => 'size="80"',
                 ],
             ],
         ],
@@ -103,8 +191,8 @@ class MailOption
             ],
         ],
         [
-            "DIV" => "edit4",
-            "TAB" => "Отладка",
+            "DIV" => "edit6",
+            "TAB" => "Журнал событий",
             "ICON" => "main_settings",
             "TITLE" => "Отладка",
             'rows' => [
@@ -135,7 +223,6 @@ class MailOption
     protected $sender;
     protected $isStrict;
     protected $allowedEmails;
-
     /**
      * @throws ArgumentOutOfRangeException
      * @throws \Bitrix\Main\ArgumentNullException

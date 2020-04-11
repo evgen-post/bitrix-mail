@@ -2,48 +2,7 @@
 use Bitrix\Main\Config\Option;
 use Bx\Mail\MailOption;
 
-$arFields = [
-    'SMTP' => [
-        [
-            'label' => 'Активность отправки SMTP',
-            'code' => 'SMTP_ACTIVE',
-            'default' => 'N',
-            'type' => 'checkbox',
-        ],
-        [
-            'label' => 'Хост',
-            'code' => 'SMTP_HOST',
-            'default' => MailOption::DEFAULT_HOST,
-        ],
-        [
-            'label' => 'Порт',
-            'code' => 'SMTP_PORT',
-            'default' => MailOption::DEFAULT_PORT,
-        ],
-        [
-            'label' => 'Логин',
-            'code' => 'SMTP_USERNAME',
-        ],
-        [
-            'label' => 'Пароль',
-            'code' => 'SMTP_PASSWORD',
-        ],
-        [
-            'label' => 'Отправитель по умолчанию',
-            'code' => 'SMTP_SENDER',
-        ],
-        [
-            'label' => 'Ограничить список получателей',
-            'code' => 'MAIL_SENDERS_STRICT',
-            'default' => 'N',
-            'type' => 'checkbox',
-        ],
-        [
-            'label' => 'Разрешённые получатели',
-            'code' => 'MAIL_SENDERS',
-        ]
-    ],
-];
+$arFields = [];
 
 function PzSmtploadOptions(&$arFields)
 {
@@ -93,20 +52,43 @@ $tabControl = new CAdminTabControl("tabControl", MailOption::getTabs());
                         <td colspan="2"><b><?=$row['label']?></b></td>
                     </tr>
                 <?php
+                } elseif ($row['type'] === 'info' && !empty($row['label'])) {
+                    ?>
+                    <tr>
+                        <td colspan="2" align="center">
+                            <div class="adm-info-message-wrap">
+                                <div class="adm-info-message">
+                                    <?=$row['label']?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php
                 } else {
                     ?>
                     <tr>
                         <td><?=$row['label']?></td>
                         <td>
-                            <?php if($row['type'] === 'checkbox'):?>
-                                <input type="hidden" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="N">
-                                <input class="input-text" type="checkbox" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="Y" <?=(($row['value'] === 'Y') ? ' checked="checked"' : '')?>>
-                            <?php elseif($row['code'] === 'SMTP_PASSWORD'):?>
-                                <input class="input-text" type="password" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="<?=$row['value']?>">
-                            <?php elseif($row['code'] === 'MAIL_SENDERS'):?>
-                                <textarea rows="20" style="width: 100%" class="input-text" name="<?=$tab['DIR']?>[<?=$row['name']?>]"><?=htmlspecialchars($row['value'])?></textarea>
+                            <?php if($row['type'] === 'checkbox'):
+                                if(!empty($row['values'])):
+                                    $val = reset($row['values']);
+                                    if(is_string($val)):
+                                        if(count($row['values'])===1):?>
+                                            <input class="input-text" type="checkbox" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$val?>" <?=(($row['value'] === $val) ? ' checked="checked"' : '')?>>
+                                        <?php elseif (count($row['values'])===2):
+                                            ?>
+                                            <input type="hidden" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$val?>">
+                                            <?php $val = next($row['values'])?>
+                                            <input class="input-text" type="checkbox" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$val?>" <?=(($row['value'] === $val) ? ' checked="checked"' : '')?>>
+                                        <?php endif;?>
+                                    <?php endif;?>
+                                <?php endif;?>
+                            <?php elseif($row['type'] === 'password'):?>
+                                <input<?=($row['attrs'])?' '.$row['attrs']:''?><?=($row['style'])?sprintf(' style="%s"', $row['style']):''?> class="input-text" type="password" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$row['value']?>">
+                            <?php elseif($row['type'] === 'textarea'):?>
+                                <textarea<?=($row['attrs'])?' '.$row['attrs']:''?><?=($row['style'])?sprintf(' style="%s"', $row['style']):''?> class="input-text" name="<?=$tab['DIV']?>[<?=$row['code']?>]"><?=htmlspecialchars($row['value'])?></textarea>
                             <?php else:?>
-                                <input class="input-text" type="text" name="<?=$tab['DIR']?>[<?=$row['name']?>]" value="<?=$row['value']?>">
+                                <input<?=($row['attrs'])?' '.$row['attrs']:''?><?=($row['style'])?sprintf(' style="%s"', $row['style']):''?> class="input-text" type="text" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$row['value']?>">
                             <?php endif;?>
                         </td>
                     </tr>
