@@ -3,7 +3,8 @@
   "description": "bitrix mail module",
   "type": "bitrix-module",
   "autoload": {
-    "classmap": ["lib/"]
+    "classmap": ["lib/"],
+    "exclude-from-classmap": ["lib/custom_mail.php"]
   },
   "keywords": [
     "bitrix",
