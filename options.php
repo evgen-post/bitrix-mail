@@ -1,30 +1,9 @@
 <?php
 use Bitrix\Main\Config\Option;
 use Bx\Mail\MailOption;
-
-$arFields = [];
-
-function PzSmtploadOptions(&$arFields)
-{
-    foreach ($arFields as $key => &$fields) {
-        foreach ($fields as &$field) {
-            if (!isset($field['default'])) {
-                $field['default'] = '';
-            }
-            if ($field['code'] === 'MAIL_SENDERS') {
-                $field['value'] = join("\n", array_map('trim', preg_split("([\n,;]+)ui", Option::get(MailOption::MODULE_ID, $field['code'], $field['default']))));
-            } else {
-                $field['value'] = Option::get(MailOption::MODULE_ID, $field['code'], $field['default']);
-            }
-        }
-    }
-}
-
-PzSmtploadOptions($arFields);
-
 if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->CanDoOperation('edit_other_settings') && $USER->CanDoOperation('edit_groups')) && check_bitrix_sessid()) {
     if (!empty($_POST['SMTP'])) {
-        MailOption::saveOptions($_POST['SMTP']);
+        MailOption::saveOptions($_POST);
     }
     if($_REQUEST["back_url_settings"] <> "" && $_REQUEST["Apply"] == "") {
         LocalRedirect($_REQUEST["back_url_settings"]);
@@ -32,11 +11,8 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->C
         LocalRedirect("/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=".urlencode($mid)."&tabControl_active_tab=".urlencode($_REQUEST["tabControl_active_tab"])."&back_url_settings=".urlencode($_REQUEST["back_url_settings"]));
     }
 }
-
-PzSmtploadOptions($arFields);
-
+MailOption::loadOptions();
 $tabControl = new CAdminTabControl("tabControl", MailOption::getTabs());
-
 ?>
 <form name="main_options" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?echo LANG?>">
     <?=bitrix_sessid_post()?>
@@ -78,7 +54,7 @@ $tabControl = new CAdminTabControl("tabControl", MailOption::getTabs());
                                         <?php elseif (count($row['values'])===2):
                                             ?>
                                             <input type="hidden" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$val?>">
-                                            <?php $val = next($row['values'])?>
+                                            <?php $val = next($row['values']); ?>
                                             <input class="input-text" type="checkbox" name="<?=$tab['DIV']?>[<?=$row['code']?>]" value="<?=$val?>" <?=(($row['value'] === $val) ? ' checked="checked"' : '')?>>
                                         <?php endif;?>
                                     <?php endif;?>

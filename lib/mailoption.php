@@ -16,11 +16,11 @@ class MailOption
     const MODULE_ID = 'bx.mail';
     const AUDIT_TYPE_ID = 'PHP Sender';
 
-    const OPTION_ACTIVE = 'SMTP_ACTIVE';
-    const OPTION_HOST = 'SMTP_HOST';
+    const OPTION_SMTP_ACTIVE = 'SMTP_ACTIVE';
+    const OPTION_SMTP_HOST = 'SMTP_HOST';
     const OPTION_USERNAME = 'SMTP_USERNAME';
     const OPTION_PASSWORD = 'SMTP_PASSWORD';
-    const OPTION_PORT = 'SMTP_PORT';
+    const OPTION_SMTP_PORT = 'SMTP_PORT';
     const OPTION_SENDER = 'SMTP_SENDER';
     const OPTION_ALLOW_SENDERS = 'MAIL_SENDERS';
     const OPTION_MAIL_SENDERS_STRICT = 'MAIL_SENDERS_STRICT';
@@ -132,7 +132,7 @@ class MailOption
                 ],
                 [
                     'label' => 'Активность отправки SMTP',
-                    'code' => 'SMTP_ACTIVE',
+                    'code' => MailOption::OPTION_SMTP_ACTIVE,
                     'default' => 'N',
                     'type' => 'checkbox',
                     'values' => [
@@ -145,13 +145,13 @@ class MailOption
                 ],
                 [
                     'label' => 'Хост',
-                    'code' => 'SMTP_HOST',
+                    'code' => MailOption::OPTION_SMTP_HOST,
                     'default' => MailOption::DEFAULT_HOST,
                     'attrs' => 'size="80"',
                 ],
                 [
                     'label' => 'Порт',
-                    'code' => 'SMTP_PORT',
+                    'code' => MailOption::OPTION_SMTP_PORT,
                     'default' => MailOption::DEFAULT_PORT,
                     'attrs' => 'size="80"',
                 ],
@@ -195,9 +195,9 @@ class MailOption
     ];
 
     const OPTION_FIELDS = [
-        self::OPTION_ACTIVE,
-        self::OPTION_HOST,
-        self::OPTION_PORT,
+        self::OPTION_SMTP_ACTIVE,
+        self::OPTION_SMTP_HOST,
+        self::OPTION_SMTP_PORT,
         self::OPTION_USERNAME,
         self::OPTION_PASSWORD,
         self::OPTION_SENDER,
@@ -267,13 +267,47 @@ class MailOption
      */
     public static function saveOptions($fields)
     {
-        foreach (self::OPTION_FIELDS as $fieldName) {
-            if (array_key_exists($fieldName, $fields)) {
-                Option::set(self::MODULE_ID, $fieldName, $fields[$fieldName]);
+        foreach (self::getTabs() as $tab) {
+            $config = [];
+            if (!empty($tab['rows'])) {
+                foreach ($tab['rows'] as $row) {
+                    if (!empty($row['code'])) {
+                        $config[$row['code']] = $fields[$tab['DIV']][$row['code']];
+                    }
+                }
+            }
+            if (!empty($config)) {
+                Option::set(self::MODULE_ID, $tab['DIV'], json_encode($config, JSON_UNESCAPED_UNICODE));
             }
         }
     }
 
+    /**
+     * @throws ArgumentNullException
+     * @throws ArgumentOutOfRangeException
+     */
+    public static function loadOptions()
+    {
+        foreach (self::$tabs as &$tab) {
+            if (!empty($tab['rows'])) {
+                $config = Option::get(self::MODULE_ID, $tab['DIV'], []);
+                if (!is_array($config)) {
+                    try {
+                        $config = json_decode($config, true);
+                    } catch (\Throwable $throwable) {
+                        $config = [];
+                    }
+                }
+                foreach ($tab['rows'] as &$row) {
+                    if (array_key_exists($row['code'], $config)) {
+                        $row['value'] = $config[$row['code']];
+                    } elseif (array_key_exists('default', $row)) {
+                        $row['value'] = $row['default'];
+                    }
+                }
+            }
+        }
+    }
     /**
      * @return bool
      * @throws ArgumentNullException
@@ -282,7 +316,7 @@ class MailOption
     public function isActive()
     {
         if (!isset($this->active)) {
-            $this->active = Option::get(self::MODULE_ID, self::OPTION_ACTIVE, 'N') === 'Y';
+            $this->active = Option::get(self::MODULE_ID, self::OPTION_SMTP_ACTIVE, 'N') === 'Y';
         }
         return $this->active;
     }
@@ -305,7 +339,7 @@ class MailOption
     public function getHost()
     {
         if (!isset($this->host)) {
-            $this->host = Option::get(self::MODULE_ID, self::OPTION_HOST, self::DEFAULT_HOST);
+            $this->host = Option::get(self::MODULE_ID, self::OPTION_SMTP_HOST, self::DEFAULT_HOST);
         }
 
         return $this->host;
@@ -401,7 +435,7 @@ class MailOption
     public function getPort()
     {
         if (!isset($this->port)) {
-            $this->port = Option::get(self::MODULE_ID, self::OPTION_PORT, self::DEFAULT_PORT);
+            $this->port = Option::get(self::MODULE_ID, self::OPTION_SMTP_PORT, self::DEFAULT_PORT);
         }
 
         return $this->port;
