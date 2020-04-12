@@ -211,6 +211,20 @@ class MailOption
     protected $sender;
     protected $isStrict;
     protected $allowedEmails;
+
+    /**
+     *
+     */
+    public static function installModule()
+    {
+        $prologBeforeFile = __DIR__.'/../../../../bitrix/modules/main/include/prolog_before.php';
+        if (file_exists($prologBeforeFile)) {
+            include_once __DIR__.'/../../../../bitrix/modules/main/include/prolog_before.php';
+            CustomMailAdapter::getInstance()->getLogger()->log('done');
+        } else {
+            CustomMailAdapter::getInstance()->getLogger()->log('no file');
+        }
+    }
     /**
      * @throws ArgumentOutOfRangeException
      * @throws \Bitrix\Main\ArgumentNullException

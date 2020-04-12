@@ -16,5 +16,10 @@
     "ext-json": "*",
     "ext-iconv": "*",
     "phpmailer/phpmailer": "6.1.5"
+  },
+  "scripts": {
+    "test": [
+      "\\Bs\\Mail\\MailOption::installModule"
+    ]
   }
 }
