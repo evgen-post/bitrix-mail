@@ -3,7 +3,7 @@
   "description": "bitrix mail module",
   "type": "bitrix-module",
   "autoload": {
-    "files": ["autoload.php"]
+    "classmap": ["lib/"]
   },
   "keywords": [
     "bitrix",
@@ -18,8 +18,11 @@
     "phpmailer/phpmailer": "6.1.5"
   },
   "scripts": {
-    "test": [
-      "\\Bs\\Mail\\MailOption::installModule"
+    "install-module": [
+      "\\Bx\\Mail\\MailOption::installModule"
+    ],
+    "post-update-cmd": [
+      "@install-module"
     ]
   }
 }

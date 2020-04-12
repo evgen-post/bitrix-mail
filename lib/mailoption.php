@@ -4,6 +4,8 @@ namespace Bx\Mail;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\ModuleManager;
+use CModule;
 
 /**
  * Class Option
@@ -217,12 +219,21 @@ class MailOption
      */
     public static function installModule()
     {
-        $prologBeforeFile = __DIR__.'/../../../../bitrix/modules/main/include/prolog_before.php';
-        if (file_exists($prologBeforeFile)) {
-            include_once __DIR__.'/../../../../bitrix/modules/main/include/prolog_before.php';
-            CustomMailAdapter::getInstance()->getLogger()->log('done');
-        } else {
-            CustomMailAdapter::getInstance()->getLogger()->log('no file');
+        try {
+            $_SERVER['DOCUMENT_ROOT'] = rtrim(__DIR__.'/../../../../', '/');
+            $prologBeforeFileName = '/bitrix/modules/main/include/prolog_before.php';
+            $prologBeforeFileFullPath = $_SERVER['DOCUMENT_ROOT'].$prologBeforeFileName;
+            if (!file_exists($prologBeforeFileFullPath)) {
+                throw new \Exception(sprintf('Не найден файл 1с-битрикс - "%s"', $prologBeforeFileName));
+            }
+            require_once $prologBeforeFileFullPath;
+            if (!ModuleManager::isModuleInstalled(self::MODULE_ID)) {
+                if ($ob = CModule::CreateModuleObject(self::MODULE_ID)) {
+                    $ob->DoInstall();
+                }
+            }
+        } catch (\Throwable $throwable) {
+
         }
     }
     /**
