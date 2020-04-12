@@ -2,6 +2,9 @@
   "name": "evk/bx.mail",
   "description": "bitrix mail module",
   "type": "bitrix-module",
+  "autoload": {
+    "files": ["autoload.php"]
+  },
   "keywords": [
     "bitrix",
     "mail"
