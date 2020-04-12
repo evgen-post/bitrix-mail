@@ -21,7 +21,10 @@
     "install-module": [
       "\\Bx\\Mail\\MailOption::installModule"
     ],
-    "post-update-cmd": [
+    "post-package-install": [
+      "@install-module"
+    ],
+    "post-package-update": [
       "@install-module"
     ]
   }

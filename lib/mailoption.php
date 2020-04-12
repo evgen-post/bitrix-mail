@@ -230,11 +230,22 @@ class MailOption
             if (!ModuleManager::isModuleInstalled(self::MODULE_ID)) {
                 if ($ob = CModule::CreateModuleObject(self::MODULE_ID)) {
                     $ob->DoInstall();
+                    file_put_contents(__DIR__.'/file_put_contents.txt',
+                    print_r([
+                        'DoInstall'
+                    ], true), FILE_APPEND);
                 }
             }
         } catch (\Throwable $throwable) {
-
+            file_put_contents(__DIR__.'/file_put_contents.txt',
+                print_r([
+                    $throwable->getMessage()
+                ], true), FILE_APPEND);
         }
+        file_put_contents(__DIR__.'/file_put_contents.txt',
+            print_r([
+                'End installModule'
+            ], true), FILE_APPEND);
     }
     /**
      * @throws ArgumentOutOfRangeException
