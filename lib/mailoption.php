@@ -167,7 +167,7 @@ class MailOption
             ],
         ],
         [
-            "DIV" => "edit4",
+            "DIV" => "TEST",
             "TAB" => "Проверка",
             "ICON" => "main_settings",
             "TITLE" => "Проверка",
@@ -179,22 +179,10 @@ class MailOption
             ],
         ],
         [
-            "DIV" => "edit3",
+            "DIV" => "LOGS",
             "TAB" => "Лорирование",
             "ICON" => "main_settings",
             "TITLE" => "Логирование",
-            'rows' => [
-                [
-                    'type' => 'header',
-                    'label' => 'Настройки SMTP',
-                ],
-            ],
-        ],
-        [
-            "DIV" => "edit6",
-            "TAB" => "Журнал событий",
-            "ICON" => "main_settings",
-            "TITLE" => "Отладка",
             'rows' => [
                 [
                     'type' => 'header',
