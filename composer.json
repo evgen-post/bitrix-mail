@@ -20,12 +20,6 @@
   "scripts": {
     "install-module": [
       "\\Bx\\Mail\\MailOption::installModule"
-    ],
-    "post-package-install": [
-      "@install-module"
-    ],
-    "post-package-update": [
-      "@install-module"
     ]
   }
 }
