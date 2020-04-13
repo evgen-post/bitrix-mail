@@ -18,12 +18,27 @@ class MailOption
 
     const OPTION_SMTP_ACTIVE = 'SMTP_ACTIVE';
     const OPTION_SMTP_HOST = 'SMTP_HOST';
-    const OPTION_USERNAME = 'SMTP_USERNAME';
-    const OPTION_PASSWORD = 'SMTP_PASSWORD';
+    const OPTION_SMTP_USERNAME = 'SMTP_USERNAME';
+    const OPTION_SMTP_PASSWORD = 'SMTP_PASSWORD';
     const OPTION_SMTP_PORT = 'SMTP_PORT';
-    const OPTION_SENDER = 'SMTP_SENDER';
-    const OPTION_ALLOW_SENDERS = 'MAIL_SENDERS';
-    const OPTION_MAIL_SENDERS_STRICT = 'MAIL_SENDERS_STRICT';
+
+    const OPTION_MAIL_SENDER_ACTIVE = 'MAIL_SENDER_ACTIVE';
+    const OPTION_MAIL_SENDER = 'MAIL_SENDER';
+
+    const OPTION_MAIL_ALLOW_SENDERS = 'MAIL_ALLOW_SENDERS';
+    const OPTION_MAIL_SENDERS_RESTRICT = 'MAIL_SENDERS_RESTRICT';
+
+    const OPTION_MAIL_TO_EXACT_ACTIVE = 'MAIL_TO_ACTIVE';
+    const OPTION_MAIL_TO_EXACT = 'MAIL_TO_EXACT';
+
+    const OPTION_MAIL_TOS_RESTRICT_ACTIVE = 'MAIL_TOS_RESTRICT_ACTIVE';
+    const OPTION_MAIL_TOS_RESTRICT = 'MAIL_TOS_RESTRICT';
+
+    const OPTION_MAIL_BLOCKING_ALL = 'MAIL_BLOCKING_ALL';
+
+    const OPTION_GROUP_MAIL = 'MAIL';
+    const OPTION_GROUP_SMTP = 'SMTP';
+    const OPTION_GROUP_LOGS = 'LOGS';
 
     const DEFAULT_HOST = '';
     const DEFAULT_PORT = 587;
@@ -32,7 +47,7 @@ class MailOption
 
     protected static $tabs = [
         [
-            "DIV" => "MAIL",
+            "DIV" => MailOption::OPTION_GROUP_MAIL,
             "TAB" => "Настройки и ограничения",
             "ICON" => "main_settings",
             "TITLE" => "Настройки и ограничения почтовых отправлений",
@@ -44,7 +59,7 @@ class MailOption
                 [
                     'label' => 'Использовать отправителя по умолчанию для всех писем',
                     'type' => 'checkbox',
-                    'code' => 'SMTP_SENDER_ACTIVE',
+                    'code' => MailOption::OPTION_MAIL_SENDER_ACTIVE,
                     'default' => 'N',
                     'values' => [
                         'N','Y',
@@ -52,7 +67,7 @@ class MailOption
                 ],
                 [
                     'label' => 'Отправитель по умолчанию для всех писем',
-                    'code' => 'SMTP_SENDER',
+                    'code' => MailOption::OPTION_MAIL_SENDER,
                     'attrs' => 'size="80"',
                 ],
                 [
@@ -62,7 +77,7 @@ class MailOption
                 [
                     'label' => 'Полностью заблокировать отправку почты',
                     'type' => 'checkbox',
-                    'code' => 'BLOCKING_ALL_MAILS',
+                    'code' => MailOption::OPTION_MAIL_BLOCKING_ALL,
                     'default' => 'N',
                     'values' => [
                         'N','Y',
@@ -79,7 +94,7 @@ class MailOption
                 [
                     'label' => 'Включить отправку всех писем на указанную почту',
                     'type' => 'checkbox',
-                    'code' => 'MAIL_TO_ACTIVE',
+                    'code' => MailOption::OPTION_MAIL_TO_EXACT_ACTIVE,
                     'default' => 'N',
                     'values' => [
                         'N','Y',
@@ -88,7 +103,7 @@ class MailOption
                 [
                     'label' => 'Отправлять все письма только на указанную почту',
                     'type' => 'text',
-                    'code' => 'MAIL_TO_EXACT',
+                    'code' => MailOption::OPTION_MAIL_TO_EXACT,
                     'attrs' => 'size="80"',
                 ],
                 [
@@ -102,7 +117,7 @@ class MailOption
                 [
                     'label' => 'Включить ограничения для списка получателей',
                     'type' => 'checkbox',
-                    'code' => 'MAIL_SENDERS_ACTIVE',
+                    'code' => MailOption::OPTION_MAIL_TOS_RESTRICT_ACTIVE,
                     'default' => 'N',
                     'values' => [
                         'N','Y',
@@ -110,7 +125,7 @@ class MailOption
                 ],
                 [
                     'label' => 'Разрешённые получатели',
-                    'code' => 'MAIL_SENDERS',
+                    'code' => MailOption::OPTION_MAIL_TOS_RESTRICT,
                     'type' => 'textarea',
                     'attrs' => 'cols="80" rows="20"',
                 ],
@@ -121,7 +136,7 @@ class MailOption
             ],
         ],
         [
-            "DIV" => "SMTP",
+            "DIV" => MailOption::OPTION_GROUP_SMTP,
             "TAB" => "Настройки SMTP",
             "ICON" => "main_settings",
             "TITLE" => "Настройки SMTP",
@@ -157,31 +172,19 @@ class MailOption
                 ],
                 [
                     'label' => 'Логин',
-                    'code' => 'SMTP_USERNAME',
+                    'code' => MailOption::OPTION_SMTP_USERNAME,
                     'attrs' => 'size="80"',
                 ],
                 [
                     'label' => 'Пароль',
-                    'code' => 'SMTP_PASSWORD',
+                    'code' => MailOption::OPTION_SMTP_PASSWORD,
                     'type' => 'password',
                     'attrs' => 'size="80"',
                 ],
             ],
         ],
         [
-            "DIV" => "TEST",
-            "TAB" => "Проверка",
-            "ICON" => "main_settings",
-            "TITLE" => "Проверка",
-            'rows' => [
-                [
-                    'type' => 'header',
-                    'label' => 'Настройки SMTP',
-                ],
-            ],
-        ],
-        [
-            "DIV" => "LOGS",
+            "DIV" => MailOption::OPTION_GROUP_LOGS,
             "TAB" => "Лорирование",
             "ICON" => "main_settings",
             "TITLE" => "Логирование",
@@ -193,18 +196,7 @@ class MailOption
             ],
         ],
     ];
-
-    const OPTION_FIELDS = [
-        self::OPTION_SMTP_ACTIVE,
-        self::OPTION_SMTP_HOST,
-        self::OPTION_SMTP_PORT,
-        self::OPTION_USERNAME,
-        self::OPTION_PASSWORD,
-        self::OPTION_SENDER,
-        self::OPTION_ALLOW_SENDERS,
-        self::OPTION_MAIL_SENDERS_STRICT,
-    ];
-
+    protected static $isLoadedOptions = false;
     protected $active;
     protected $host;
     protected $userName;
@@ -213,6 +205,51 @@ class MailOption
     protected $sender;
     protected $isStrict;
     protected $allowedEmails;
+
+    /**
+     * @return bool
+     */
+    public function isMailSenderActive()
+    {
+        self::loadOptionsSoft();
+        return self::getTabs()[self::OPTION_GROUP_MAIL][self::OPTION_MAIL_SENDER_ACTIVE] === 'Y';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMailToExactActive()
+    {
+        self::loadOptionsSoft();
+        return self::getTabs()[self::OPTION_GROUP_MAIL][self::OPTION_MAIL_TO_EXACT_ACTIVE] === 'Y';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMailBlockingAll()
+    {
+        self::loadOptionsSoft();
+        return self::getTabs()[self::OPTION_GROUP_MAIL][self::OPTION_MAIL_BLOCKING_ALL] === 'Y';
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMailToExact()
+    {
+        self::loadOptionsSoft();
+        return self::getTabs()[self::OPTION_GROUP_MAIL][self::OPTION_MAIL_TO_EXACT];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMailSender()
+    {
+        self::loadOptionsSoft();
+        return self::getTabs()[self::OPTION_GROUP_MAIL][self::OPTION_MAIL_SENDER];
+    }
 
     /**
      *
@@ -230,36 +267,19 @@ class MailOption
             if (!ModuleManager::isModuleInstalled(self::MODULE_ID)) {
                 if ($ob = CModule::CreateModuleObject(self::MODULE_ID)) {
                     $ob->DoInstall();
-                    file_put_contents(__DIR__.'/file_put_contents.txt',
-                    print_r([
-                        'DoInstall'
-                    ], true), FILE_APPEND);
                 }
             }
         } catch (\Throwable $throwable) {
-            file_put_contents(__DIR__.'/file_put_contents.txt',
-                print_r([
-                    $throwable->getMessage()
-                ], true), FILE_APPEND);
+
         }
-        file_put_contents(__DIR__.'/file_put_contents.txt',
-            print_r([
-                'End installModule'
-            ], true), FILE_APPEND);
     }
+
     /**
-     * @throws ArgumentOutOfRangeException
-     * @throws \Bitrix\Main\ArgumentNullException
+     * @return mixed
      */
     public function getAllowedEmails()
     {
-        if ($this->isStrict()) {
-            if (is_null($this->allowedEmails)) {
-                $this->allowedEmails = array_map('trim', preg_split("([\n,;]+)ui", Option::get(MailOption::MODULE_ID, MailOption::OPTION_ALLOW_SENDERS)));
-            }
-            return $this->allowedEmails;
-        }
-        return [];
+        return $this->allowedEmails;
     }
     /**
      * @param $fields
@@ -282,6 +302,20 @@ class MailOption
         }
     }
 
+    /**
+     *
+     */
+    protected static function loadOptionsSoft()
+    {
+        try {
+            if (!MailOption::$isLoadedOptions) {
+                MailOption::loadOptions();
+            }
+        } catch (\Throwable $throwable) {
+
+        }
+
+    }
     /**
      * @throws ArgumentNullException
      * @throws ArgumentOutOfRangeException
@@ -307,17 +341,14 @@ class MailOption
                 }
             }
         }
+        self::$isLoadedOptions = true;
     }
+
     /**
      * @return bool
-     * @throws ArgumentNullException
-     * @throws ArgumentOutOfRangeException
      */
     public function isActive()
     {
-        if (!isset($this->active)) {
-            $this->active = Option::get(self::MODULE_ID, self::OPTION_SMTP_ACTIVE, 'N') === 'Y';
-        }
         return $this->active;
     }
 
@@ -333,15 +364,9 @@ class MailOption
 
     /**
      * @return mixed
-     * @throws ArgumentNullException
-     * @throws ArgumentOutOfRangeException
      */
     public function getHost()
     {
-        if (!isset($this->host)) {
-            $this->host = Option::get(self::MODULE_ID, self::OPTION_SMTP_HOST, self::DEFAULT_HOST);
-        }
-
         return $this->host;
     }
 
@@ -364,7 +389,7 @@ class MailOption
     public function getSender()
     {
         if (!isset($this->sender)) {
-            $this->sender = Option::get(self::MODULE_ID, self::OPTION_SENDER);
+            $this->sender = Option::get(self::MODULE_ID, self::OPTION_MAIL_SENDER);
         }
         return $this->sender;
     }
@@ -387,7 +412,7 @@ class MailOption
     public function getUserName()
     {
         if (!isset($this->userName)) {
-            $this->userName = Option::get(self::MODULE_ID, self::OPTION_USERNAME, self::DEFAULT_USERNAME);
+            $this->userName = Option::get(self::MODULE_ID, self::OPTION_SMTP_USERNAME, self::DEFAULT_USERNAME);
         }
 
         return $this->userName;
@@ -411,7 +436,7 @@ class MailOption
     public function getPassword()
     {
         if (!isset($this->password)) {
-            $this->password = Option::get(self::MODULE_ID, self::OPTION_PASSWORD, self::DEFAULT_PASSWORD);
+            $this->password = Option::get(self::MODULE_ID, self::OPTION_SMTP_PASSWORD, self::DEFAULT_PASSWORD);
         }
 
         return $this->password;
@@ -459,7 +484,7 @@ class MailOption
     public function isStrict()
     {
         if (is_null($this->isStrict)) {
-            $this->isStrict = (Option::get(MailOption::MODULE_ID, MailOption::OPTION_MAIL_SENDERS_STRICT, 'N') === 'Y');
+            $this->isStrict = (Option::get(MailOption::MODULE_ID, MailOption::OPTION_MAIL_SENDERS_RESTRICT, 'N') === 'Y');
         }
 
         return $this->isStrict;
