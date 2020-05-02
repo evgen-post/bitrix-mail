@@ -41,7 +41,7 @@ class bx_mail extends CModule
      */
     function DoInstall()
     {
-        EventManager::getInstance()->registerEventHandler('main', 'OnPageStart', $this->MODULE_ID);
+        EventManager::getInstance()->registerEventHandler('main', 'OnBeforeProlog', $this->MODULE_ID);
         RegisterModule($this->MODULE_ID);
     }
 
@@ -50,7 +50,7 @@ class bx_mail extends CModule
      */
     function DoUninstall()
     {
-        EventManager::getInstance()->unRegisterEventHandler('main', 'OnPageStart', $this->MODULE_ID);
+        EventManager::getInstance()->unRegisterEventHandler('main', 'OnBeforeProlog', $this->MODULE_ID);
         UnRegisterModule($this->MODULE_ID);
     }
 

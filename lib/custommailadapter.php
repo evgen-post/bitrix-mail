@@ -74,7 +74,7 @@ class CustomMailAdapter
     public function createCustomMailFunction()
     {
         if ($this->checkFunctionNotExists() && $this->canSendMail()) {
-            include_once __DIR__.'/custom_mail.php';
+            include_once __DIR__.'/../include/custom_mail.php';
         }
     }
 
@@ -119,22 +119,29 @@ class CustomMailAdapter
                 $this->getParser()->parseMessage($message);
 
                 $this->getPhpMailer()->isSMTP();
-
+                $this->getPhpMailer()->SMTPAuth = true;
+                $this->getPhpMailer()->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $this->getPhpMailer()->Host = $this->getOptions()->getHost();
                 $this->getPhpMailer()->Username = $this->getOptions()->getUserName();
                 $this->getPhpMailer()->Password = $this->getOptions()->getPassword();
                 $this->getPhpMailer()->Port = $this->getOptions()->getPort();
 
                 $this->getPhpMailer()->CharSet = PHPMailer::CHARSET_UTF8;
-                $this->getPhpMailer()->SMTPAuth = true;
-                $this->getPhpMailer()->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $this->getPhpMailer()->Subject = $subject;
 
-                $this->getPhpMailer()->isHTML($this->getParser()->isHtml());
+                $this->getPhpMailer()->AllowEmpty = true;
 
-                $this->getPhpMailer()->Body = $this->getParser()->getHtmlMessage();
-                if ($this->getParser()->isHtml()) {
-                    $this->getPhpMailer()->AltBody = $this->getParser()->getTextMessage();
+                $htmlText = $this->getParser()->getHtmlMessage();
+                $plainText = $this->getParser()->getTextMessage();
+
+                if (empty($htmlText) && !empty($plainText)) {
+                    $this->getPhpMailer()->isHtml(false);
+                    $this->getPhpMailer()->Body = $plainText;
+                } elseif (!empty($htmlText) && !empty($plainText)) {
+                    $this->getPhpMailer()->Body = $htmlText;
+                    $this->getPhpMailer()->AltBody = $plainText;
+                } else {
+                    $this->getPhpMailer()->Body = $htmlText;
                 }
 
                 $this->getPhpMailer()->SMTPDebug = SMTP::DEBUG_OFF;

@@ -1,12 +1,9 @@
 <?php
 namespace Bx\Mail;
 
-use Bitrix\Main\ArgumentNullException;
-use Bitrix\Main\ArgumentOutOfRangeException;
+use Bitrix\Main\EventResult;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
-use Bitrix\Main\EventResult;
-
 /**
  * Class MailRestrict
  * @package Bx\Mail
@@ -17,8 +14,6 @@ class MailRestrict
     /**
      * @param $email
      * @return bool
-     * @throws ArgumentOutOfRangeException
-     * @throws ArgumentNullException
      */
     public function checkAllowEmail($email)
     {
@@ -34,7 +29,16 @@ class MailRestrict
         EventManager::getInstance()->addEventHandler('main', 'OnBeforeMailSend', function (Event $event) {
             $params = $event->getParameter(0);
             if (!$this->checkAllowEmail($params['TO'])) {
-                $this->getAdapter()->getLogger()->eventLog($params['TO'].' BLOCKED', 'EMAIL');
+                $toExactEmail = $this->getAdapter()->getOptions()->getOption(MailOption::OPTION_GROUP_MAIL, MailOption::OPTION_MAIL_TO_EXACT, '');
+                $isToExactEmailAllow = $this->getAdapter()
+                    ->getOptions()
+                    ->getOption(MailOption::OPTION_GROUP_MAIL, MailOption::OPTION_MAIL_TO_EXACT_ACTIVE, 'N') === 'Y';
+                if ($isToExactEmailAllow && !empty($toExactEmail)) {
+                    $this->getAdapter()->getLogger()->eventLog($params['TO'].' BLOCKED AND MAIL SEND TO '.$toExactEmail, 'EMAIL');
+                    $params['TO'] = $toExactEmail;
+                    return new EventResult(EventResult::SUCCESS, $params);
+                }
+                $this->getAdapter()->getLogger()->eventLog($params['TO'].' BLOCKED ', 'EMAIL');
                 return new EventResult(EventResult::ERROR);
             }
         });

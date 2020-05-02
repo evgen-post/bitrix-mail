@@ -29,7 +29,7 @@ class MailParser
     protected function parseHeaderContentType($header)
     {
         $this->setContentType($header);
-        if (preg_match('(multipart/mixed; boundary="([^"]+)")ui', $this->getContentType(), $m)) {
+        if (preg_match('(boundary="([^"]+)")ui', $this->getContentType(), $m)) {
             $this->setBoundary($m[1]);
         }
     }
@@ -168,18 +168,14 @@ class MailParser
                             );
                         }
                     } elseif (!empty($row['headers']['Content-Type'])
-                        && preg_match('(multipart/alternative; boundary="([^"]+)")ui', $row['headers']['Content-Type'], $m)
+                        && preg_match('(boundary="([^"]+)")ui', $row['headers']['Content-Type'], $m)
                     ) {
                         $boundary = $m[1];
                         if (stripos($row['content'], $boundary) !== false) {
                             $arSubMessage = $this->parseMessageWithBoundary($row['content'], $boundary);
                             foreach ($arSubMessage as $item) {
                                 $item = $this->parseMessageWithHeaders($item);
-                                if (stripos($item['headers']['Content-Type'], 'text/plain') !== false) {
-                                    $this->setTextMessage($item['content']);
-                                } elseif (stripos($item['headers']['Content-Type'], 'text/html') !== false) {
-                                    $this->setHtmlMessage($item['content']);
-                                }
+                                $this->setHtmlMessageByContentType($item['content'], $item['headers']['Content-Type']);
                             }
                         }
                     } else {
@@ -199,11 +195,9 @@ class MailParser
     protected function setHtmlMessageByContentType($message, $contentType)
     {
         if (stripos($contentType, 'text/plain') !== false) {
-            $this->setIsHtml(false);
-            $this->setHtmlMessage($message);
+            $this->setTextMessage($message);
         } elseif (stripos($contentType, 'text/html') !== false) {
             $this->setHtmlMessage($message);
-            $this->setTextMessage(strip_tags($this->getHtmlMessage()));
         }
     }
     /**
