@@ -22,7 +22,13 @@
     "install-module": [
       "\\Bx\\Mail\\MailOption::installModule"
     ],
-    "post-root-package-install": "touch post-root-package-install.txt",
-    "post-create-project-cmd": "touch post-create-project-cmd.txt"
+    "post-root-package-install": [
+      "touch post-root-package-install.txt",
+      "printenv > post-root-package-install.txt"
+    ],
+    "post-create-project-cmd": [
+      "touch post-create-project-cmd.txt",
+      "printenv > post-root-package-install.txt"
+    ]
   }
 }
