@@ -28,7 +28,7 @@
     ],
     "post-create-project-cmd": [
       "touch post-create-project-cmd.txt",
-      "printenv > post-root-package-install.txt"
+      "printenv > post-create-project-cmd.txt"
     ]
   }
 }
