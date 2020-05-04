@@ -24,11 +24,15 @@
     ],
     "post-root-package-install": [
       "touch post-root-package-install.txt",
-      "printenv > post-root-package-install.txt"
+      "printenv > post-root-package-install.txt",
+      "ls -la >> post-root-package-install.txt",
+      "pwd >> post-root-package-install.txt"
     ],
     "post-create-project-cmd": [
       "touch post-create-project-cmd.txt",
-      "printenv > post-create-project-cmd.txt"
+      "printenv > post-create-project-cmd.txt",
+      "ls -la >> post-create-project-cmd.txt",
+      "pwd >> post-create-project-cmd.txt"
     ]
   }
 }
