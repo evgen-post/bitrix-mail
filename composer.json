@@ -4,7 +4,10 @@
   "type": "bitrix-module",
   "autoload": {
     "classmap": ["lib/"],
-    "exclude-from-classmap": ["lib/custom_mail.php"]
+    "exclude-from-classmap": ["lib/custom_mail.php"],
+    "files": [
+      "composer-install.php"
+    ]
   },
   "keywords": [
     "bitrix",
@@ -19,14 +22,11 @@
     "phpmailer/phpmailer": "6.1.5"
   },
   "scripts": {
-    "install-module": [
-      "\\Bx\\Mail\\MailOption::installModule"
+    "pre-install-bitrix-module": [
+      "EvkComposerInstall::install"
     ],
     "post-create-project-cmd": [
-      "printenv > post-create-project-cmd.txt",
-      "ls -la >> post-create-project-cmd.txt",
-      "pwd >> post-create-project-cmd.txt",
-      "@install-module"
+      "@pre-install-bitrix-module"
     ]
   }
 }
