@@ -5,9 +5,9 @@
   "autoload": {
     "classmap": ["lib/"],
     "exclude-from-classmap": ["lib/custom_mail.php"],
-    "files": [
-      "composer-install.php"
-    ]
+    "psr-0": {
+      "EvkComposerInstall": ""
+    }
   },
   "keywords": [
     "bitrix",
