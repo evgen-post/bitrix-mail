@@ -4,10 +4,7 @@
   "type": "bitrix-module",
   "autoload": {
     "classmap": ["lib/"],
-    "exclude-from-classmap": ["lib/custom_mail.php"],
-    "psr-0": {
-      "EvkComposerInstall": ""
-    }
+    "exclude-from-classmap": ["lib/custom_mail.php"]
   },
   "keywords": [
     "bitrix",
@@ -23,7 +20,7 @@
   },
   "scripts": {
     "pre-install-bitrix-module": [
-      "EvkComposerInstall::install"
+      "php EvkComposerInstall.php"
     ],
     "post-create-project-cmd": [
       "@pre-install-bitrix-module"
