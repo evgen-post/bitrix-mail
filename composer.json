@@ -22,15 +22,11 @@
     "install-module": [
       "\\Bx\\Mail\\MailOption::installModule"
     ],
-    "post-root-package-install": [
-      "printenv > post-root-package-install.txt",
-      "ls -la >> post-root-package-install.txt",
-      "pwd >> post-root-package-install.txt"
-    ],
     "post-create-project-cmd": [
       "printenv > post-create-project-cmd.txt",
       "ls -la >> post-create-project-cmd.txt",
-      "pwd >> post-create-project-cmd.txt"
+      "pwd >> post-create-project-cmd.txt",
+      "@install-module"
     ]
   }
 }
